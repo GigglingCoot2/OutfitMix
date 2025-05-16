@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'pantallas/pantalla_inicio.dart';
 import 'pantallas/cargar_prendas.dart';
 import 'pantallas/favoritos.dart';
+import 'pantallas/calendario_Screen.dart';
 
 void main() {
   runApp(const OutfitMix());
@@ -40,10 +41,11 @@ class PantallaInicio extends StatefulWidget {
 class _PantallaInicioState extends State<PantallaInicio> {
   int currentPageIndex = 0;
 
-  final List<Widget> _pantallas = const [
-    PantallaInicioContenido(),
-    CargarPrendas(),
-    Favoritos(),
+  final List<Widget> _pantallas =  [
+    const PantallaInicioContenido(),
+    const CargarPrendas(),
+    const Favoritos(),
+    calendarScreen(),
   ];
 
   @override
@@ -74,6 +76,11 @@ class _PantallaInicioState extends State<PantallaInicio> {
             selectedIcon: Icon(Icons.star),
             icon: Icon(Icons.star_border_outlined),
             label: 'Favoritos',
+          ),
+          NavigationDestination(
+            selectedIcon: Icon(Icons.calendar_month),
+            icon: Icon(Icons.calendar_month_outlined),
+            label: 'Calendario',
           ),
         ],
       ),

@@ -15,7 +15,10 @@ class _PantallaInicioContenidoState extends State<PantallaInicioContenido> {
   bool mostrarArmado = false;
 
   List<String> tops = ['assets/images/top1.jpg', 'assets/images/top2.jpg'];
-  List<String> bottoms = ['assets/images/bottom1.jpg', 'assets/images/bottom2.jpg'];
+  List<String> bottoms = [
+    'assets/images/bottom1.jpg',
+    'assets/images/bottom2.jpg'
+  ];
 
   int topIndex = 0;
   int bottomIndex = 0;
@@ -73,47 +76,68 @@ class _PantallaInicioContenidoState extends State<PantallaInicioContenido> {
 
   @override
   Widget build(BuildContext context) {
-    if (!mostrarArmado) {
-      return Center(
-        child: ElevatedButton(
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Fall fashion'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: mostrarArmado
+            ? Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            buildControlDeCategoria(
+                tops[topIndex], () => cambiarTop(-1), aleatorioTops, () =>
+                cambiarTop(1)),
+            const SizedBox(height: 20),
+            buildControlDeCategoria(
+                bottoms[bottomIndex], () => cambiarBottom(-1),
+                aleatorioBotoms, () => cambiarBottom(1)),
+            const SizedBox(height: 20),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                IconButton(
+                  icon: const Icon(Icons.star_border),
+                  onPressed: () async {
+                    await guardarOutfitEnFavoritos(
+                        tops[topIndex], bottoms[bottomIndex]);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                          content: Text('Outfit agregado a favoritos')),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ],
+        )
+            : ElevatedButton(
           onPressed: () {
             setState(() {
               mostrarArmado = true;
             });
           },
-          child: const Text('Arma tu outfit')
+          child: const Text('Arma tu outfit'),
         ),
-      );
-    }
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        buildControlDeCategoria(tops[topIndex], () => cambiarTop(-1), aleatorioTops, () => cambiarTop(1)),
-        const SizedBox(height: 20),
-        buildControlDeCategoria(bottoms[bottomIndex], () => cambiarBottom(-1), aleatorioBotoms, () => cambiarBottom(1)),
-        const SizedBox(height: 20),
-        Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            IconButton(
-              icon: const Icon(Icons.star_border),
-              onPressed: ()async {
-                // Guardar como favorito
-                await guardarOutfitEnFavoritos(tops[topIndex], bottoms[bottomIndex]);
-
-                ScaffoldMessenger.of(context).showSnackBar(
-                  const SnackBar(content: Text('Outfit agregado a favoritos')),
-                );
-              },
-            ),
-          ],
-        )
-      ],
+      ),
     );
   }
 
-  Widget buildControlDeCategoria(String imagePath, VoidCallback onPrev, VoidCallback onRandom, VoidCallback onNext) {
+  Widget buildControlDeCategoria(
+      String imagePath,
+      VoidCallback onPrev,
+      VoidCallback onRandom,
+      VoidCallback onNext,
+      ) {
+    ImageProvider imageProvider;
+
+    if (imagePath.contains('assets/')) {
+      imageProvider = AssetImage(imagePath);
+    } else {
+      imageProvider = FileImage(File(imagePath));
+    }
+
     return Column(
       children: [
         Row(
@@ -129,12 +153,15 @@ class _PantallaInicioContenidoState extends State<PantallaInicioContenido> {
         ),
         const SizedBox(height: 10),
         Image(
-          image: imagePath.startsWith('assets/')
+          image: imagePath.contains('assets/')
               ? AssetImage(imagePath)
-              : FileImage(File(imagePath)) as ImageProvider,
+              : FileImage(File(imagePath)),
           height: 120,
           fit: BoxFit.contain,
-        ),
+          errorBuilder: (context, error, stackTrace) {
+            return const Icon(Icons.broken_image, size: 120, color: Colors.grey);
+          },
+        )
       ],
     );
   }
